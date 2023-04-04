@@ -6,7 +6,6 @@
 
     <groupId>org.bolyuk</groupId>
     <artifactId>bktgbotlib</artifactId>
-    <packaging>pom</packaging>
     <version>master-SNAPSHOT</version>
 
     <properties>
