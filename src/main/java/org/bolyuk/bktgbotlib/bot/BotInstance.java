@@ -3,9 +3,11 @@ package org.bolyuk.bktgbotlib.bot;
 import com.pengrad.telegrambot.TelegramBot;
 import com.pengrad.telegrambot.UpdatesListener;
 import com.pengrad.telegrambot.model.Update;
+import org.bolyuk.bktgbotlib.Debug;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class BotInstance extends TelegramBot {
     public Provider provider;
@@ -24,7 +26,7 @@ public class BotInstance extends TelegramBot {
                         else
                             provider.updateProvider.onUpdateRecieved(new Response(u));
                     } catch (Exception e){
-                        e.printStackTrace();
+                        System.out.println(e);
                     }
                 return UpdatesListener.CONFIRMED_UPDATES_ALL;
             }
@@ -49,11 +51,12 @@ public class BotInstance extends TelegramBot {
             command_body = buf.toArray(new String[0]);
         }
 
-        if (response.chatId() != response.fromId()) {
+        if (!Objects.equals(response.chatId(), response.fromId())) {
             doPublicChatUpdate(response, command, command_body);
+            Debug.d("public chat handler");
             return;
         }
-
+        Debug.d("private chat handler");
         doPrivateChatUpdate(response, command, command_body);
         }
 
@@ -74,9 +77,12 @@ public class BotInstance extends TelegramBot {
 
             BotMenu menu = chat.ui.getMenu();
 
-            if(tryDoCommand(menu, command, command_body, response))
+            if(tryDoCommand(menu, command, command_body, response)) {
+                Debug.d("no menu and no command. exit");
                 return;
+            }
 
+            menu.menuBuilder(chat);
             if(menu instanceof ChatMenu)
                 ((ChatMenu)menu).execution(chat, user, response);
             else
@@ -95,9 +101,12 @@ public class BotInstance extends TelegramBot {
             UserState user = provider.userProvider.getUser(response.fromId(), this);
             BotMenu menu = user.ui.getMenu();
 
-            if(tryDoCommand(menu, command, command_body, response))
-               return;
+            if(tryDoCommand(menu, command, command_body, response)) {
+                Debug.d("no menu and no command. exit");
+                return;
+            }
 
+            menu.menuBuilder(user);
             menu.execution(user, response);
         }
 
