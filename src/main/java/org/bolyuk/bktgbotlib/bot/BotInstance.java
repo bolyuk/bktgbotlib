@@ -26,7 +26,7 @@ public class BotInstance extends TelegramBot {
                         else
                             provider.updateProvider.onUpdateRecieved(new Response(u));
                     } catch (Exception e){
-                        System.out.println(e);
+                        e.printStackTrace();
                     }
                 return UpdatesListener.CONFIRMED_UPDATES_ALL;
             }
@@ -84,9 +84,9 @@ public class BotInstance extends TelegramBot {
 
             menu.menuBuilder(chat);
             if(menu instanceof ChatMenu)
-                ((ChatMenu)menu).execution(chat, user, response);
+                ((ChatMenu)menu).pre_execution(chat, user, response);
             else
-                menu.execution(user, response);
+                menu.pre_execution(user, response);
 
         }
 
@@ -107,7 +107,7 @@ public class BotInstance extends TelegramBot {
             }
 
             menu.menuBuilder(user);
-            menu.execution(user, response);
+            menu.pre_execution(user, response);
         }
 
         public boolean tryDoCommand(BotMenu menu, String command, String[] command_body, Response response){

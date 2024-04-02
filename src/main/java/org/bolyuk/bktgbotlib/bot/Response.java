@@ -51,6 +51,8 @@ public class Response {
     }
 
     public String text(){
+        if(isCallback)
+            return null;
         return u.message().text();
     }
 
