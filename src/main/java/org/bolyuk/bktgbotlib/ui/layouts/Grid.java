@@ -6,6 +6,7 @@ import org.bolyuk.bktgbotlib.ui.views.View;
 
 import java.util.ArrayList;
 
+@Deprecated
 public class Grid extends Layout{
 
     View[][] views;

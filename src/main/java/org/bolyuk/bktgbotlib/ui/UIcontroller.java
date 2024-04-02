@@ -45,18 +45,26 @@ public class UIcontroller {
 
 
 
+
     public void send(String text){
         user.last_msg =  user.bot.execute(new SendMessage(user.uid, text)).message().messageId();
     }
+
+
+    public void send(String text, Layout layout){
+        user.last_msg = user.bot.execute(new SendMessage(user.uid, text).replyMarkup(layout.getKeyboard())).message().messageId();
+    }
+
 
     public void reply(String text, int msg_id){
         user.last_msg =  user.bot.execute(new SendMessage(user.uid, text).replyToMessageId(msg_id)).message().messageId();
     }
 
-    public void send(String text, Layout layout){
-        System.out.println(LayoutVisualiser.getString(layout));
-        user.last_msg = user.bot.execute(new SendMessage(user.uid, text).replyMarkup(layout.getKeyboard())).message().messageId();
+
+    public void reply(String text, Layout layout, int msg_id){
+        user.last_msg =  user.bot.execute(new SendMessage(user.uid, text).replyToMessageId(msg_id).replyMarkup(layout.getKeyboard())).message().messageId();
     }
+
 
     public void resend(String text){
         if(user.last_msg != -1)

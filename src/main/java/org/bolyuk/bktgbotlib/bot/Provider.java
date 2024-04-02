@@ -1,13 +1,18 @@
 package org.bolyuk.bktgbotlib.bot;
 
-import java.util.HashMap;
-
 public class Provider {
     public UserStateProvider userProvider;
     public UpdateProvider updateProvider;
 
+    public UserStateProvider chatProvider;
+
     public Provider setDefaultUserStateProvider(UserStateProvider provider){
         userProvider =provider;
+        return this;
+    }
+
+    public Provider setDefaultChatStateProvider(UserStateProvider provider){
+        chatProvider =provider;
         return this;
     }
 
@@ -17,7 +22,7 @@ public class Provider {
     }
 
         public interface UserStateProvider{
-         UserStatable getUser(String uid, BotInstance bot);
+         UserState getUser(String uid, BotInstance bot);
         }
         public interface UpdateProvider{
           void onUpdateRecieved(Response response);

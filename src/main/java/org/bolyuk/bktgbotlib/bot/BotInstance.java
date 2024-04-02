@@ -31,51 +31,95 @@ public class BotInstance extends TelegramBot {
         });
     }
 
-    private void doUpdate(Response response){
-        UserStatable current_user;
-
+    private void doUpdate(Response response) {
         String command = null;
-        String[] command_body =new String[0];
+        String[] command_body = new String[0];
 
-        if(!response.isCallback() && response.text() != null && response.text().startsWith("/")) {
-            String regex=" ";
-            if(response.text().startsWith("/start"))
-                regex="=";
+        if (!response.isCallback() && response.text() != null && response.text().startsWith("/")) {
+            String regex = " ";
+            if (response.text().startsWith("/start"))
+                regex = "=";
 
             ArrayList<String> buf = new ArrayList<String>(List.of(response.text().split(regex)));
 
             System.out.println(buf.toString());
 
-            command= buf.get(0);
+            command = buf.get(0);
             buf.remove(0);
             command_body = buf.toArray(new String[0]);
         }
 
-        if(provider.userProvider != null) {
-            current_user = provider.userProvider.getUser(response.fromId(), this);
-            try {
-                BotMenu menu = current_user.get().ui.getMenu();
-                if(menu != null) {
-                    menu.menuBuilder(current_user);
-                    if (command != null) {
-                        if (menu.handler.canHandle(command))
-                            menu.handler.handle(command, command_body, response);
-                        else if (commandHandler.canHandle(command))
-                            commandHandler.handle(command, command_body, response);
-                        else
-                            menu.execution(current_user, response);
-                    } else {
-                        menu.execution(current_user, response);
-                    }
-                } else if (commandHandler.canHandle(command))
-                    commandHandler.handle(command, command_body, response);
+        if (response.chatId() != response.fromId()) {
+            doPublicChatUpdate(response, command, command_body);
+            return;
+        }
 
-            } catch (Exception e) {
-                e.printStackTrace();
+        doPrivateChatUpdate(response, command, command_body);
+        }
+
+        public void doPublicChatUpdate(Response response, String command, String[] command_body){
+
+            if(provider.chatProvider == null){
+                if(command != null && commandHandler.canHandle(command))
+                    commandHandler.handle(command, command_body, response);
+                return;
             }
-        } else if(commandHandler.canHandle(command))
-            commandHandler.handle(command, command_body, response);
-    }
+
+           UserState chat = provider.chatProvider.getUser(response.chatId(), this);
+
+            if(provider.userProvider == null)
+                return;
+
+            UserState user = provider.userProvider.getUser(response.fromId(), this);
+
+            BotMenu menu = chat.ui.getMenu();
+
+            if(tryDoCommand(menu, command, command_body, response))
+                return;
+
+            if(menu instanceof ChatMenu)
+                ((ChatMenu)menu).execution(chat, user, response);
+            else
+                menu.execution(user, response);
+
+        }
+
+        public void doPrivateChatUpdate(Response response, String command, String[] command_body){
+
+          if(provider.userProvider == null){
+              if(command != null && commandHandler.canHandle(command))
+                  commandHandler.handle(command, command_body, response);
+              return;
+          }
+
+            UserState user = provider.userProvider.getUser(response.fromId(), this);
+            BotMenu menu = user.ui.getMenu();
+
+            if(tryDoCommand(menu, command, command_body, response))
+               return;
+
+            menu.execution(user, response);
+        }
+
+        public boolean tryDoCommand(BotMenu menu, String command, String[] command_body, Response response){
+            boolean isCommand = command != null;
+            boolean isMenu = menu != null;
+
+            if(!isMenu && !isCommand)
+                return true;
+
+            if(isCommand) {
+                if(isMenu && menu.handler.canHandle(command)) {
+                    menu.handler.handle(command, command_body, response);
+                    return true;
+                }
+                if(commandHandler.canHandle(command)) {
+                    commandHandler.handle(command, command_body, response);
+                    return true;
+                }
+            }
+            return false;
+        }
 
 
 

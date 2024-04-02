@@ -44,7 +44,10 @@ public class Response {
     }
 
     public String chatId(){
-        return String.valueOf(u.message().chat().id());
+        if(isCallback)
+            return String.valueOf(u.callbackQuery().message().chat().id());
+        else
+            return String.valueOf(u.message().chat().id());
     }
 
     public String text(){

@@ -5,9 +5,10 @@ import org.bolyuk.bktgbotlib.ui.UIcontroller;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class UserState implements UserStatable {
+public class UserState {
     public String uid;
     public int last_msg=-1;
+    ArrayList<Integer> msg_stack = new ArrayList<>();
 
     public ArrayList<String> menus = new ArrayList<>();
     public HashMap<String, HashMap<String, String>> cache = new HashMap<>();
@@ -52,9 +53,7 @@ public class UserState implements UserStatable {
         cache.put(name, new HashMap<>());
     }
 
-
-    @Override
-    public UserState get() {
-        return this;
+    public <T> T to(Class<T> clazz){
+        return (T)this;
     }
 }

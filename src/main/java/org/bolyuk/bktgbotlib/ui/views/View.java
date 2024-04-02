@@ -37,8 +37,9 @@ public abstract class View {
         return (T)this;
     }
 
-    public void setOnClickListener(ViewClick listener){
+    public View setOnClickListener(ViewClick listener){
         this.onClick=listener;
+        return this;
     }
 
     public interface ViewClick{
